@@ -34,7 +34,7 @@ class GameBoardNotification {
             return notification;
         }
 
-        static GameBoardNotification RobotMoved(RobotMove moveType, int fromX, int fromY, int toX, int toY){
+        static GameBoardNotification RobotMoved(RobotMove moveType, RobotColor col, Direction dir, int fromX, int fromY, int toX, int toY){
             GameBoardNotification notification;
             notification.event = EventType::MOVE;
             notification.moveType = moveType;
@@ -42,6 +42,8 @@ class GameBoardNotification {
             notification.fromYcoord = fromY;
             notification.toXcoord = toX;
             notification.toYcoord = toY;
+            notification.dir = dir;
+            notification.robot = col;
             return notification;
         }
 
@@ -53,6 +55,7 @@ class GameBoardNotification {
         int getXCoord() const { return xCoord; }
         int getYCoord() const { return yCoord; }
         RobotMove getMoveType() const { return moveType; }
+        Direction getDirection() const { return dir; }
         int getFromXCoordinate() const { return fromXcoord; }
         int getFromYCoordinate() const { return fromYcoord; }
         int getToXCoordinate() const { return toXcoord; }
@@ -67,6 +70,7 @@ class GameBoardNotification {
         int xCoord = -1;
         int yCoord = -1;
         RobotMove moveType;
+        Direction dir; 
         int fromXcoord = -1;
         int fromYcoord = -1;
         int toXcoord = -1;

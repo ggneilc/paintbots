@@ -33,6 +33,7 @@ void GameLogic::playGame(std::string boardconfig, std::string robotconfig){
     Config settings(boardconfig);
     GameBoard* board = GameBoard::getInstance("xyzzy", settings);
     PlainDisplay display(*board);
+    
 
     std::ifstream robotConfiguration(robotconfig);
     if (!robotConfiguration.is_open()){
@@ -42,21 +43,21 @@ void GameLogic::playGame(std::string boardconfig, std::string robotconfig){
     std::string line; 
     /* Red Robot Strategy */
     std::getline(robotConfiguration, line);
-    Robot red = board->findRobot(RobotColor::RED).getPaintBot();
+    Robot* red = board->findRobot(RobotColor::RED).getPaintBot();
 //    red.setColor(RobotColor::RED);   // already happened in GameBoard but sanity check
     IRobotAgent* redstrategy = nullptr;
     if (line == "Lazy") { redstrategy = new lazyRobot();} 
     else { redstrategy = new randomRobot();} 
-    red.setRobotAgent(redstrategy);
+    red->setRobotAgent(redstrategy);
 
     /* Blue Robot Strategy */
     std::getline(robotConfiguration, line);
-    Robot blue = board->findRobot(RobotColor::BLUE).getPaintBot();
+    Robot* blue = board->findRobot(RobotColor::BLUE).getPaintBot();
 //    blue.setColor(RobotColor::BLUE);   // already happened in GameBoard but sanity check
     IRobotAgent* bluestrategy = nullptr;
     if (line == "Lazy") { bluestrategy = new lazyRobot();} 
     else { bluestrategy = new randomRobot();} 
-    blue.setRobotAgent(bluestrategy);
+    blue->setRobotAgent(bluestrategy);
 
     /* Game Loop */
     for (int i = 0; i < iterations; i++){
@@ -68,28 +69,38 @@ void GameLogic::playGame(std::string boardconfig, std::string robotconfig){
         if (board->findRobot(RobotColor::RED).getSquareType() == SquareType::ROCK
         || board->findRobot(RobotColor::RED).getSquareType() == SquareType::WALL){
             winner = RobotColor::BLUE;
-//            break;
+            break;
         }
         // Blue bumps into rock or wall 
         else if (board->findRobot(RobotColor::BLUE).getSquareType() == SquareType::ROCK
         || board->findRobot(RobotColor::BLUE).getSquareType() == SquareType::WALL){
             winner = RobotColor::RED;
-//            break;
+            break;
         }
         // they bump into each other
         else if (board->findRobot(RobotColor::BLUE).getPaintBotRow() == board->findRobot(RobotColor::RED).getPaintBotRow()
         && board->findRobot(RobotColor::BLUE).getPaintBotCol() == board->findRobot(RobotColor::RED).getPaintBotCol()){
-//            break;  // get out of the loop -> count the tiles 
+            break;  // get out of the loop -> count the tiles 
         }
 
         ExternalBoardSquare** redsrs = board->getShortRangeScan(RobotColor::RED);
         ExternalBoardSquare** bluesrs = board->getShortRangeScan(RobotColor::BLUE);
 
-        IRobotAgent* redstrat = red.getRobotAgent();
+        IRobotAgent* redstrat = red->getRobotAgent();
         RobotMoveRequest* redMove = redstrat->getMove(nullptr, redsrs);
 
-        IRobotAgent* bluestrat = blue.getRobotAgent();
+        printf("RED MOVE: %s\n", redMove->move == RobotMove::FORWARD ? "FORWARD"
+        : redMove->move == RobotMove::ROTATELEFT ? "ROTATELEFT" 
+        : redMove->move == RobotMove::ROTATERIGHT ? "ROTATERIGHT"
+        : "NONE");
+
+        IRobotAgent* bluestrat = blue->getRobotAgent();
         RobotMoveRequest* blueMove = bluestrat->getMove(nullptr, bluesrs);
+
+        printf("BLUE MOVE: %s\n", blueMove->move == RobotMove::FORWARD ? "FORWARD"
+        : blueMove->move == RobotMove::ROTATELEFT ? "ROTATELEFT" 
+        : blueMove->move == RobotMove::ROTATERIGHT ? "ROTATERIGHT"
+        : "NONE");
 
         board->MoveRobot(*redMove);
         board->MoveRobot(*blueMove);

@@ -127,13 +127,7 @@ GameBoard* GameBoard::instance = nullptr;
 
 bool GameBoard::MoveRobot(RobotMoveRequest& mr){
     /* Find the robot */
-    InternalBoardSquare robotSquare;
-    if (mr.robot == RobotColor::RED){
-        robotSquare = findRobot(RobotColor::RED);
-    }
-    else {
-        robotSquare = findRobot(RobotColor::BLUE);
-    }
+    InternalBoardSquare& robotSquare = (mr.robot == RobotColor::RED) ? findRobot(RobotColor::RED) : findRobot(RobotColor::BLUE);
 
     switch (mr.move)
     {
@@ -142,47 +136,47 @@ bool GameBoard::MoveRobot(RobotMoveRequest& mr){
         if (robotSquare.robotDirection() == Direction::WEST) robotSquare.setRobotDir(Direction::SOUTH);
         if (robotSquare.robotDirection() == Direction::SOUTH) robotSquare.setRobotDir(Direction::EAST);
         if (robotSquare.robotDirection() == Direction::EAST) robotSquare.setRobotDir(Direction::NORTH);
-        notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()));
+        notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, mr.robot, robotSquare.robotDirection(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()));
         break;
     case RobotMove::ROTATERIGHT:
         if (robotSquare.robotDirection() == Direction::NORTH) robotSquare.setRobotDir(Direction::EAST);
         if (robotSquare.robotDirection() == Direction::WEST) robotSquare.setRobotDir(Direction::NORTH);
         if (robotSquare.robotDirection() == Direction::SOUTH) robotSquare.setRobotDir(Direction::WEST);
         if (robotSquare.robotDirection() == Direction::EAST) robotSquare.setRobotDir(Direction::SOUTH);
-        notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()));
+        notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATERIGHT, mr.robot, robotSquare.robotDirection(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()));
         break;
     case RobotMove::FORWARD:
         if (robotSquare.robotDirection() == Direction::NORTH) {
             setSquareColor(robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), (robotSquare.blueRobotPresent() ? SquareColor::BLUE : SquareColor::RED));
             InternalBoardSquare next = getSquare(robotSquare.getPaintBotRow()-1, robotSquare.getPaintBotCol());
-            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow()-1, robotSquare.getPaintBotCol()));
-            next.setPaintBot(&(robotSquare.getPaintBot()));
+            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::FORWARD, mr.robot, Direction::NORTH, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow()-1, robotSquare.getPaintBotCol()));
+            next.setPaintBot((robotSquare.getPaintBot()));
             robotSquare.setPaintBot(nullptr);
-            robotSquare.getPaintBot().setRow(robotSquare.getPaintBot().getRow()-1);
+            robotSquare.getPaintBot()->setRow(robotSquare.getPaintBot()->getRow()-1);
         }
         if (robotSquare.robotDirection() == Direction::WEST) {
             setSquareColor(robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), (robotSquare.blueRobotPresent() ? SquareColor::BLUE : SquareColor::RED));
             InternalBoardSquare next = getSquare(robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()-1);
-            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()-1));
-            next.setPaintBot(&(robotSquare.getPaintBot()));
+            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::FORWARD, mr.robot, Direction::WEST, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()-1));
+            next.setPaintBot((robotSquare.getPaintBot()));
             robotSquare.setPaintBot(nullptr);
-            robotSquare.getPaintBot().setRow(robotSquare.getPaintBot().getCol()-1);
+            robotSquare.getPaintBot()->setRow(robotSquare.getPaintBot()->getCol()-1);
         }
         if (robotSquare.robotDirection() == Direction::SOUTH) {
             setSquareColor(robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), (robotSquare.blueRobotPresent() ? SquareColor::BLUE : SquareColor::RED));
             InternalBoardSquare next = getSquare(robotSquare.getPaintBotRow()+1, robotSquare.getPaintBotCol());
-            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow()+1, robotSquare.getPaintBotCol()));
-            next.setPaintBot(&(robotSquare.getPaintBot()));
+            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::FORWARD, mr.robot, Direction::SOUTH, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow()+1, robotSquare.getPaintBotCol()));
+            next.setPaintBot((robotSquare.getPaintBot()));
             robotSquare.setPaintBot(nullptr);
-            robotSquare.getPaintBot().setRow(robotSquare.getPaintBot().getRow()+1);
+            robotSquare.getPaintBot()->setRow(robotSquare.getPaintBot()->getRow()+1);
         }
         if (robotSquare.robotDirection() == Direction::EAST) {
             setSquareColor(robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), (robotSquare.blueRobotPresent() ? SquareColor::BLUE : SquareColor::RED));
             InternalBoardSquare next = getSquare(robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()+1);
-            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::ROTATELEFT, robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()+1));
-            next.setPaintBot(&(robotSquare.getPaintBot()));
+            notifyObservers(GameBoardNotification::RobotMoved(RobotMove::FORWARD, mr.robot, Direction::EAST,  robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol(), robotSquare.getPaintBotRow(), robotSquare.getPaintBotCol()+1));
+            next.setPaintBot((robotSquare.getPaintBot()));
             robotSquare.setPaintBot(nullptr);
-            robotSquare.getPaintBot().setRow(robotSquare.getPaintBot().getCol()+1);
+            robotSquare.getPaintBot()->setRow(robotSquare.getPaintBot()->getCol()+1);
         }
         break;
     case RobotMove::NONE:
@@ -193,13 +187,9 @@ bool GameBoard::MoveRobot(RobotMoveRequest& mr){
 
 bool GameBoard::PaintBlobHit(RobotMoveRequest& mr){
     /* Find the robot */
-    InternalBoardSquare robotSquare;
-    if (mr.robot == RobotColor::RED){
-        robotSquare = findRobot(RobotColor::RED);
-    }
-    else {
-        robotSquare = findRobot(RobotColor::BLUE);
-    }
+    InternalBoardSquare& robotSquare = (mr.robot == RobotColor::RED) 
+        ? findRobot(RobotColor::RED)
+        : findRobot(RobotColor::BLUE);
 
     switch(robotSquare.robotDirection()){
         case Direction::NORTH:
@@ -293,8 +283,8 @@ void GameBoard::setSquareColor(int row, int col, SquareColor c){
 
 void GameBoard::setRobotPaintColor(RobotColor robot, SquareColor sc){
     InternalBoardSquare square = findRobot(robot);
-    Robot r = square.getPaintBot();
-    r.setPaintColor(sc == SquareColor::RED ? SquareColor::RED : SquareColor::BLUE);
+    Robot* r = square.getPaintBot();
+    r->setPaintColor(sc == SquareColor::RED ? SquareColor::RED : SquareColor::BLUE);
 }
 
 ExternalBoardSquare** GameBoard::getLongRangeScan(){
@@ -448,20 +438,33 @@ PlainDisplay::PlainDisplay(const GameBoard& initial){
             grid[i][j] = instance->getSquare(i,j);
         }
     }
+    instance->addObserver(this);
 }
 
 void PlainDisplay::update(const GameBoardNotification& notif) {
-    Robot tmp {RobotColor::RED, 0, 0};
     switch(notif.getEventType()){
         case GameBoardNotification::EventType::COLOR:
-            grid[notif.getXCoord()][notif.getYCoord()] = InternalBoardSquare(notif.getSquareColor(), grid[notif.getXCoord()][notif.getYCoord()].getSquareType());
+            printf("Updated Display: Color, %d %d", notif.getXCoord(), notif.getYCoord());
+            grid[notif.getXCoord()][notif.getYCoord()].setSquareColor(notif.getSquareColor());
             break;
         case GameBoardNotification::EventType::MOVE:
-            tmp = grid[notif.getFromXCoordinate()][notif.getFromYCoordinate()].getPaintBot();
-            grid[notif.getFromXCoordinate()][notif.getFromYCoordinate()].setPaintBot(nullptr);
-            grid[notif.getToXCoordinate()][notif.getToYCoordinate()].setPaintBot(&tmp);
+            // Only clear robot from source if actually moving
+            if (notif.getMoveType() == RobotMove::FORWARD) {
+                // Create new robot state in destination
+                grid[notif.getToXCoordinate()][notif.getToYCoordinate()].setPaintBot(
+                    grid[notif.getFromXCoordinate()][notif.getFromYCoordinate()].getPaintBot()
+                );
+
+                grid[notif.getFromXCoordinate()][notif.getFromYCoordinate()].setPaintBot(nullptr);
+            } else {
+                // For rotation, just update the direction
+                grid[notif.getFromXCoordinate()][notif.getFromYCoordinate()].setRobotDir(
+                    notif.getDirection()
+                );
+            }
             break;
         case GameBoardNotification::EventType::SCORE:
+            printf("Updated Display: Score");
             if (notif.getScoringRobot() == RobotColor::RED){
                 redscore = notif.getRedScore();
             } else {
@@ -469,4 +472,8 @@ void PlainDisplay::update(const GameBoardNotification& notif) {
             }
             break;
     }
+    printf(": %s\n",
+    notif.getSquareColor() == SquareColor::RED 
+    ? "RED" 
+    : notif.getSquareColor() == SquareColor::BLUE ? "BLUE" : "WHITE");
 }

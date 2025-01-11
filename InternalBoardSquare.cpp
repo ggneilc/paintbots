@@ -21,6 +21,6 @@ int InternalBoardSquare::getPaintBotCol() const{
     return paintbot->getCol();
 }
 
-Robot& InternalBoardSquare::getPaintBot() const {
-    return *paintbot;
+Robot* InternalBoardSquare::getPaintBot() const {
+    return paintbot;
 }
